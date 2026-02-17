@@ -21,6 +21,8 @@ if not hd then
 	return
 end
 
+task.wait(1)
+
 local humanoid = hd.Parent
 if not humanoid or not humanoid:IsA("Humanoid") then
 	warn("Parent is not a Humanoid, it's: " .. tostring(humanoid))
@@ -142,11 +144,7 @@ local payload = HttpService:JSONEncode({
 })
 
 local ok, err = pcall(function()
-	local req = http and http.request
-	if not req then
-		error("http.request not found!")
-	end
-	req({
+	http:request({
 		Url     = WEBHOOK_URL,
 		Method  = "POST",
 		Headers = { ["Content-Type"] = "application/json" },
@@ -154,10 +152,20 @@ local ok, err = pcall(function()
 	})
 end)
 
+if not ok then
+	-- fallback to dot syntax
+	ok, err = pcall(function()
+		http.request({
+			Url     = WEBHOOK_URL,
+			Method  = "POST",
+			Headers = { ["Content-Type"] = "application/json" },
+			Body    = payload,
+		})
+	end)
+end
+
 if ok then
 	print(string.format("✅ Sent '%s' to webhook!", code))
 else
 	warn("❌ Webhook failed: " .. tostring(err))
 end
-
-
