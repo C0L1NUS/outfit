@@ -38,14 +38,14 @@ end
 local export = {
     RigType = humanoid.RigType.Name,
     Accessories = {
-        BackAccessory      = safeNum(hd.BackAccessory),
-        FaceAccessory      = safeNum(hd.FaceAccessory),
-        FrontAccessory     = safeNum(hd.FrontAccessory),
-        HairAccessory      = safeNum(hd.HairAccessory),
-        HatAccessory       = safeNum(hd.HatAccessory),
-        NeckAccessory      = safeNum(hd.NeckAccessory),
-        ShouldersAccessory = safeNum(hd.ShouldersAccessory),
-        WaistAccessory     = safeNum(hd.WaistAccessory),
+        BackAccessory      = parseAccessories(hd.BackAccessory),
+        FaceAccessory      = parseAccessories(hd.FaceAccessory),
+        FrontAccessory     = parseAccessories(hd.FrontAccessory),
+        HairAccessory      = parseAccessories(hd.HairAccessory),
+        HatAccessory       = parseAccessories(hd.HatAccessory),
+        NeckAccessory      = parseAccessories(hd.NeckAccessory),
+        ShouldersAccessory = parseAccessories(hd.ShouldersAccessory),
+        WaistAccessory     = parseAccessories(hd.WaistAccessory),
     },
     Scales = {
         BodyTypeScale   = safeNum(hd.BodyTypeScale),
@@ -130,5 +130,6 @@ if ok then
 else
     warn("❌ Webhook failed: " .. tostring(err))
 end
+
 
 
