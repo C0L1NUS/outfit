@@ -36,7 +36,7 @@ local function rgb(color3)
 end
 
 local export = {
-    RigType = humanoid.RigType.Name,
+    RigType = "R15",
     Accessories = {
         BackAccessory      = safeNum(hd.BackAccessory),
         FaceAccessory      = safeNum(hd.FaceAccessory),
@@ -130,3 +130,4 @@ if ok then
 else
     warn("❌ Webhook failed: " .. tostring(err))
 end
+
