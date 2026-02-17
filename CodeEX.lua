@@ -42,18 +42,18 @@ local function rgb(color3)
 end
 
 local function parseAccessory(val)
-	local str = tostring(val or "")
-	if str == "" or str == "nil" then return nil end
+	if val == nil then return nil end
+	local ok, str = pcall(tostring, val)
+	if not ok or str == "" or str == "nil" then return nil end
 	local ids = {}
 	for id in str:gmatch("[^,]+") do
-		local n = tonumber(id:match("^%s*(.-)%s*$"))
-		if n and n ~= 0 then
-			table.insert(ids, n)
+		local trimmed = id:match("^%s*(.-)%s*$")
+		if trimmed and trimmed ~= "" then
+			table.insert(ids, trimmed)
 		end
 	end
 	if #ids == 0 then return nil end
-	if #ids == 1 then return ids[1] end
-	return ids
+	return table.concat(ids, ", ")
 end
 
 local export = {
@@ -157,3 +157,4 @@ if ok then
 else
 	warn("❌ Webhook failed: " .. tostring(err))
 end
+
