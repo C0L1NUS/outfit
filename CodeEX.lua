@@ -144,25 +144,13 @@ local payload = HttpService:JSONEncode({
 })
 
 local ok, err = pcall(function()
-	http:request({
+	request({
 		Url     = WEBHOOK_URL,
 		Method  = "POST",
 		Headers = { ["Content-Type"] = "application/json" },
 		Body    = payload,
 	})
 end)
-
-if not ok then
-	-- fallback to dot syntax
-	ok, err = pcall(function()
-		http.request({
-			Url     = WEBHOOK_URL,
-			Method  = "POST",
-			Headers = { ["Content-Type"] = "application/json" },
-			Body    = payload,
-		})
-	end)
-end
 
 if ok then
 	print(string.format("✅ Sent '%s' to webhook!", code))
