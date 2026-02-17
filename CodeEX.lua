@@ -142,13 +142,9 @@ local payload = HttpService:JSONEncode({
 })
 
 local ok, err = pcall(function()
-	local req = request
-		or http_request
-		or (syn and syn.request)
-		or (fluxus and fluxus.request)
-		or (http and http.request)
+	local req = http and http.request
 	if not req then
-		error("No HTTP request function found in this executor!")
+		error("http.request not found!")
 	end
 	req({
 		Url     = WEBHOOK_URL,
@@ -163,4 +159,5 @@ if ok then
 else
 	warn("❌ Webhook failed: " .. tostring(err))
 end
+
 
