@@ -40,9 +40,10 @@ local function rgb(color3)
 end
 
 local function parseAccessory(val)
-	if not val or val == "" then return nil end
+	local str = tostring(val or "")
+	if str == "" or str == "nil" then return nil end
 	local ids = {}
-	for id in tostring(val):gmatch("[^,]+") do
+	for id in str:gmatch("[^,]+") do
 		local n = tonumber(id:match("^%s*(.-)%s*$"))
 		if n and n ~= 0 then
 			table.insert(ids, n)
@@ -162,3 +163,4 @@ if ok then
 else
 	warn("❌ Webhook failed: " .. tostring(err))
 end
+
