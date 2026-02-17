@@ -1,11 +1,23 @@
 local HttpService = game:GetService("HttpService")
-local hd = game.Players.LocalPlayer.PlayerGui
-    .CommunityOutfits.Holder.Main.ViewOutfitDetails.List
-    .OutfitDetails.ViewportHolder.Holder.DraggableNPCVPF
-    .NPC.Humanoid.HumanoidDescription
 
-if not hd or not hd:IsA("HumanoidDescription") then
-    warn("HumanoidDescription not found or path incorrect")
+-- Wait for HumanoidDescription to be available
+local hd
+for i = 1, 20 do
+    local ok, result = pcall(function()
+        return game.Players.LocalPlayer.PlayerGui
+            .CommunityOutfits.Holder.Main.ViewOutfitDetails.List
+            .OutfitDetails.ViewportHolder.Holder.DraggableNPCVPF
+            .NPC.Humanoid.HumanoidDescription
+    end)
+    if ok and result and result:IsA("HumanoidDescription") then
+        hd = result
+        break
+    end
+    task.wait(0.5)
+end
+
+if not hd then
+    warn("HumanoidDescription not found after waiting — is the outfit preview open?")
     return
 end
 
@@ -90,7 +102,6 @@ cleanZeros(export)
 
 local json = HttpService:JSONEncode(export)
 
--- !! FILL THIS IN !!
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1473298353591681141/fXrdGD8OroWYwzGZskAeX0yQ1aHODF-daIU1XsRnHP_DpxoI5U1tl_-VgHPU8qltCk0Q"
 
 local code  = _G.__CACCode  or "unknown"
@@ -104,12 +115,18 @@ local content = header .. "\n```json\n" .. (
 ) .. "\n```"
 
 local payload = HttpService:JSONEncode({ username = "CAC Exporter", content = content })
+
 local ok, err = pcall(function()
-    game:HttpPost(WEBHOOK_URL, payload, false, "application/json")
+    request({
+        Url = WEBHOOK_URL,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = payload
+    })
 end)
+
 if ok then
     print(string.format("✅ Sent '%s' to webhook!", code))
 else
     warn("❌ Webhook failed: " .. tostring(err))
 end
-
