@@ -91,7 +91,7 @@ cleanZeros(export)
 local json = HttpService:JSONEncode(export)
 
 -- !! FILL THIS IN !!
-local WEBHOOK_URL = "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1473298353591681141/fXrdGD8OroWYwzGZskAeX0yQ1aHODF-daIU1XsRnHP_DpxoI5U1tl_-VgHPU8qltCk0Q"
 
 local code  = _G.__CACCode  or "unknown"
 local index = _G.__CACIndex or 1
@@ -112,3 +112,4 @@ if ok then
 else
     warn("❌ Webhook failed: " .. tostring(err))
 end
+
