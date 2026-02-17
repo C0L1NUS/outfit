@@ -3,101 +3,122 @@ local HttpService = game:GetService("HttpService")
 -- Wait for HumanoidDescription to be available
 local hd
 for i = 1, 20 do
-    local ok, result = pcall(function()
-        return game.Players.LocalPlayer.PlayerGui
-            .CommunityOutfits.Holder.Main.ViewOutfitDetails.List
-            .OutfitDetails.ViewportHolder.Holder.DraggableNPCVPF
-            .NPC.Humanoid.HumanoidDescription
-    end)
-    if ok and result and result:IsA("HumanoidDescription") then
-        hd = result
-        break
-    end
-    task.wait(0.5)
+	local ok, result = pcall(function()
+		return game.Players.LocalPlayer.PlayerGui
+			.CommunityOutfits.Holder.Main.ViewOutfitDetails.List
+			.OutfitDetails.ViewportHolder.Holder.DraggableNPCVPF
+			.NPC.Humanoid.HumanoidDescription
+	end)
+	if ok and result and result:IsA("HumanoidDescription") then
+		hd = result
+		break
+	end
+	task.wait(0.5)
 end
 
 if not hd then
-    warn("HumanoidDescription not found after waiting — is the outfit preview open?")
-    return
+	warn("HumanoidDescription not found after waiting — is the outfit preview open?")
+	return
 end
 
 local humanoid = hd.Parent
 
 local function safeNum(val)
-    return tonumber(val) or 0
+	return tonumber(val) or 0
 end
 
 local function rgb(color3)
-    return {
-        R = math.round(color3.R * 255),
-        G = math.round(color3.G * 255),
-        B = math.round(color3.B * 255),
-    }
+	return {
+		R = math.round(color3.R * 255),
+		G = math.round(color3.G * 255),
+		B = math.round(color3.B * 255),
+	}
+end
+
+-- Accessory fields are comma-separated strings like "111,222,333"
+-- This splits them and converts each to a number, returning a list (or single number if only one)
+local function parseAccessory(val)
+	if not val or val == "" then return nil end
+	local ids = {}
+	for id in tostring(val):gmatch("[^,]+") do
+		local n = tonumber(id:match("^%s*(.-)%s*$"))
+		if n and n ~= 0 then
+			table.insert(ids, n)
+		end
+	end
+	if #ids == 0 then return nil end
+	if #ids == 1 then return ids[1] end
+	return ids
 end
 
 local export = {
-    RigType = humanoid.RigType.Name,
-    Accessories = {
-        BackAccessory      = parseAccessories(hd.BackAccessory),
-        FaceAccessory      = parseAccessories(hd.FaceAccessory),
-        FrontAccessory     = parseAccessories(hd.FrontAccessory),
-        HairAccessory      = parseAccessories(hd.HairAccessory),
-        HatAccessory       = parseAccessories(hd.HatAccessory),
-        NeckAccessory      = parseAccessories(hd.NeckAccessory),
-        ShouldersAccessory = parseAccessories(hd.ShouldersAccessory),
-        WaistAccessory     = parseAccessories(hd.WaistAccessory),
-    },
-    Scales = {
-        BodyTypeScale   = safeNum(hd.BodyTypeScale),
-        DepthScale      = safeNum(hd.DepthScale),
-        HeadScale       = safeNum(hd.HeadScale),
-        HeightScale     = safeNum(hd.HeightScale),
-        ProportionScale = safeNum(hd.ProportionScale),
-        WidthScale      = safeNum(hd.WidthScale),
-    },
-    Animations = {
-        ClimbAnimation = safeNum(hd.ClimbAnimation),
-        FallAnimation  = safeNum(hd.FallAnimation),
-        IdleAnimation  = safeNum(hd.IdleAnimation),
-        JumpAnimation  = safeNum(hd.JumpAnimation),
-        MoodAnimation  = safeNum(hd.MoodAnimation),
-        RunAnimation   = safeNum(hd.RunAnimation),
-        SwimAnimation  = safeNum(hd.SwimAnimation),
-        WalkAnimation  = safeNum(hd.WalkAnimation),
-    },
-    BodyParts = {
-        Face     = safeNum(hd.Face),
-        Head     = safeNum(hd.Head),
-        LeftArm  = safeNum(hd.LeftArm),
-        LeftLeg  = safeNum(hd.LeftLeg),
-        RightArm = safeNum(hd.RightArm),
-        RightLeg = safeNum(hd.RightLeg),
-        Torso    = safeNum(hd.Torso),
-    },
-    Clothes = {
-        GraphicTShirt = safeNum(hd.GraphicTShirt),
-        Pants         = safeNum(hd.Pants),
-        Shirt         = safeNum(hd.Shirt),
-    },
-    BodyColors = {
-        HeadColor     = rgb(hd.HeadColor),
-        TorsoColor    = rgb(hd.TorsoColor),
-        LeftArmColor  = rgb(hd.LeftArmColor),
-        RightArmColor = rgb(hd.RightArmColor),
-        LeftLegColor  = rgb(hd.LeftLegColor),
-        RightLegColor = rgb(hd.RightLegColor),
-    },
+	RigType = humanoid.RigType.Name,
+	Accessories = {
+		BackAccessory       = parseAccessory(hd.BackAccessory),
+		FaceAccessory       = parseAccessory(hd.FaceAccessory),
+		FrontAccessory      = parseAccessory(hd.FrontAccessory),
+		HairAccessory       = parseAccessory(hd.HairAccessory),
+		HatAccessory        = parseAccessory(hd.HatAccessory),
+		NeckAccessory       = parseAccessory(hd.NeckAccessory),
+		ShouldersAccessory  = parseAccessory(hd.ShouldersAccessory),
+		WaistAccessory      = parseAccessory(hd.WaistAccessory),
+	},
+	Scales = {
+		BodyTypeScale   = safeNum(hd.BodyTypeScale),
+		DepthScale      = safeNum(hd.DepthScale),
+		HeadScale       = safeNum(hd.HeadScale),
+		HeightScale     = safeNum(hd.HeightScale),
+		ProportionScale = safeNum(hd.ProportionScale),
+		WidthScale      = safeNum(hd.WidthScale),
+	},
+	Animations = {
+		ClimbAnimation = safeNum(hd.ClimbAnimation),
+		FallAnimation  = safeNum(hd.FallAnimation),
+		IdleAnimation  = safeNum(hd.IdleAnimation),
+		JumpAnimation  = safeNum(hd.JumpAnimation),
+		MoodAnimation  = safeNum(hd.MoodAnimation),
+		RunAnimation   = safeNum(hd.RunAnimation),
+		SwimAnimation  = safeNum(hd.SwimAnimation),
+		WalkAnimation  = safeNum(hd.WalkAnimation),
+	},
+	BodyParts = {
+		Face     = safeNum(hd.Face),
+		Head     = safeNum(hd.Head),
+		LeftArm  = safeNum(hd.LeftArm),
+		LeftLeg  = safeNum(hd.LeftLeg),
+		RightArm = safeNum(hd.RightArm),
+		RightLeg = safeNum(hd.RightLeg),
+		Torso    = safeNum(hd.Torso),
+	},
+	Clothes = {
+		GraphicTShirt = safeNum(hd.GraphicTShirt),
+		Pants         = safeNum(hd.Pants),
+		Shirt         = safeNum(hd.Shirt),
+	},
+	BodyColors = {
+		HeadColor     = rgb(hd.HeadColor),
+		TorsoColor    = rgb(hd.TorsoColor),
+		LeftArmColor  = rgb(hd.LeftArmColor),
+		RightArmColor = rgb(hd.RightArmColor),
+		LeftLegColor  = rgb(hd.LeftLegColor),
+		RightLegColor = rgb(hd.RightLegColor),
+	},
 }
 
+-- Remove nil/zero entries recursively
 local function cleanZeros(tbl)
-    for k, v in pairs(tbl) do
-        if type(v) == "number" and v == 0 then
-            tbl[k] = nil
-        elseif type(v) == "table" then
-            cleanZeros(v)
-        end
-    end
+	for k, v in pairs(tbl) do
+		if type(v) == "number" and v == 0 then
+			tbl[k] = nil
+		elseif type(v) == "table" then
+			-- Don't clean RGB tables (they're valid with 0s)
+			if not (v.R ~= nil and v.G ~= nil and v.B ~= nil) then
+				cleanZeros(v)
+			end
+		end
+	end
 end
+
 cleanZeros(export)
 
 local json = HttpService:JSONEncode(export)
@@ -111,25 +132,25 @@ local total = _G.__CACTotal or 1
 local header  = string.format("**[%d/%d] Code `%s`**", index, total, code)
 local maxBody = 1990 - #header - 12
 local content = header .. "\n```json\n" .. (
-    #json <= maxBody and json or string.sub(json, 1, maxBody) .. "\n... (truncated)"
+	#json <= maxBody and json or string.sub(json, 1, maxBody) .. "\n... (truncated)"
 ) .. "\n```"
 
-local payload = HttpService:JSONEncode({ username = "CAC Exporter", content = content })
+local payload = HttpService:JSONEncode({
+	username = "CAC Exporter",
+	content  = content,
+})
 
 local ok, err = pcall(function()
-    request({
-        Url = WEBHOOK_URL,
-        Method = "POST",
-        Headers = { ["Content-Type"] = "application/json" },
-        Body = payload
-    })
+	request({
+		Url     = WEBHOOK_URL,
+		Method  = "POST",
+		Headers = { ["Content-Type"] = "application/json" },
+		Body    = payload,
+	})
 end)
 
 if ok then
-    print(string.format("✅ Sent '%s' to webhook!", code))
+	print(string.format("✅ Sent '%s' to webhook!", code))
 else
-    warn("❌ Webhook failed: " .. tostring(err))
+	warn("❌ Webhook failed: " .. tostring(err))
 end
-
-
-
