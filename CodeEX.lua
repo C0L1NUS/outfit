@@ -22,6 +22,10 @@ if not hd then
 end
 
 local humanoid = hd.Parent
+if not humanoid or not humanoid:IsA("Humanoid") then
+	warn("Parent is not a Humanoid, it's: " .. tostring(humanoid))
+	return
+end
 
 local function safeNum(val)
 	return tonumber(val) or 0
@@ -35,8 +39,6 @@ local function rgb(color3)
 	}
 end
 
--- Accessory fields are comma-separated strings like "111,222,333"
--- This splits them and converts each to a number, returning a list (or single number if only one)
 local function parseAccessory(val)
 	if not val or val == "" then return nil end
 	local ids = {}
@@ -54,14 +56,14 @@ end
 local export = {
 	RigType = humanoid.RigType.Name,
 	Accessories = {
-		BackAccessory       = parseAccessory(hd.BackAccessory),
-		FaceAccessory       = parseAccessory(hd.FaceAccessory),
-		FrontAccessory      = parseAccessory(hd.FrontAccessory),
-		HairAccessory       = parseAccessory(hd.HairAccessory),
-		HatAccessory        = parseAccessory(hd.HatAccessory),
-		NeckAccessory       = parseAccessory(hd.NeckAccessory),
-		ShouldersAccessory  = parseAccessory(hd.ShouldersAccessory),
-		WaistAccessory      = parseAccessory(hd.WaistAccessory),
+		BackAccessory      = parseAccessory(hd.BackAccessory),
+		FaceAccessory      = parseAccessory(hd.FaceAccessory),
+		FrontAccessory     = parseAccessory(hd.FrontAccessory),
+		HairAccessory      = parseAccessory(hd.HairAccessory),
+		HatAccessory       = parseAccessory(hd.HatAccessory),
+		NeckAccessory      = parseAccessory(hd.NeckAccessory),
+		ShouldersAccessory = parseAccessory(hd.ShouldersAccessory),
+		WaistAccessory     = parseAccessory(hd.WaistAccessory),
 	},
 	Scales = {
 		BodyTypeScale   = safeNum(hd.BodyTypeScale),
@@ -105,13 +107,11 @@ local export = {
 	},
 }
 
--- Remove nil/zero entries recursively
 local function cleanZeros(tbl)
 	for k, v in pairs(tbl) do
 		if type(v) == "number" and v == 0 then
 			tbl[k] = nil
 		elseif type(v) == "table" then
-			-- Don't clean RGB tables (they're valid with 0s)
 			if not (v.R ~= nil and v.G ~= nil and v.B ~= nil) then
 				cleanZeros(v)
 			end
@@ -141,7 +141,15 @@ local payload = HttpService:JSONEncode({
 })
 
 local ok, err = pcall(function()
-	request({
+	local req = request
+		or http_request
+		or (syn and syn.request)
+		or (fluxus and fluxus.request)
+		or (http and http.request)
+	if not req then
+		error("No HTTP request function found in this executor!")
+	end
+	req({
 		Url     = WEBHOOK_URL,
 		Method  = "POST",
 		Headers = { ["Content-Type"] = "application/json" },
